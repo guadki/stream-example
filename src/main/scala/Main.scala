@@ -1,5 +1,5 @@
 import akka.stream.IOResult
-import akka.stream.scaladsl.{RunnableGraph, Sink}
+import akka.stream.scaladsl.{Keep, RunnableGraph}
 import akka.util.ByteString
 import file.{FileRead, FileWrite, WordCount}
 
@@ -15,7 +15,7 @@ object Main extends App with AkkaImplicits with FileRead with FileWrite with Wor
     fileSource(fileToRead)
       .via(wordCountFlow)
       .map(c => ByteString(s"Word count is $c${System.lineSeparator()}"))
-      .to(fileSink(fileToWrite))
+      .toMat(fileSink(fileToWrite))(Keep.right)
   }
 
   runnable.run().onComplete {
